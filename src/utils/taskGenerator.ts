@@ -45,21 +45,19 @@ export async function generateDailyTasks(): Promise<Task[]> {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-    const prompt = `Generate exactly 3 daily teaching tasks for an English teacher who specializes in teaching children. The tasks should be realistic, educational, and help build teaching skills and content creation abilities.
+    const prompt = `Generate exactly 3 daily teaching tasks for an English/General Knowledge/Math teacher who specializes in teaching children. The tasks should be realistic, educational, and help build teaching skills and content creation abilities.
 
-Context about the teacher: They have experience in English teaching and want to focus on creating engaging content for kids. They're currently building their teaching portfolio and want to feel productive.
+Context about the teacher: They have experience in English/General Knowledge/Math teaching and want to focus on creating engaging content for kids till 2nd standard. They're currently building their teaching portfolio and want to feel productive.
 
 Please generate exactly 3 tasks with these specific requirements:
-1. ONE easy task (priority: easy) - Basic content creation or simple organization (15-25 min)
-2. ONE medium task (priority: medium) - Lesson planning or moderate content creation (30-45 min)
-3. ONE hard task (priority: hard) - Complex lesson planning or advanced content creation (50-70 min)
+1. ONE easy task (priority: easy) - Basic English/General Knowledge/Math tasks (15-25 min)
 
 Each task should have:
 - A clear, actionable title
 - Detailed description of what to do
-- Category (Lesson Planning, Content Creation, Organization, Student Engagement, Professional Development)
+- Category (English/General Knowledge/Math Tasks)
 - Estimated time in minutes (with the ranges specified above)
-- Priority level (exactly one of each: hard, medium, easy)
+- Priority level (easy)
 
 Format your response as a JSON array of exactly 3 objects with these exact properties:
 - title: string
@@ -68,7 +66,7 @@ Format your response as a JSON array of exactly 3 objects with these exact prope
 - estimated_time_in_minutes: number
 - priority: string
 
-Make sure you generate exactly one task of each priority level: hard, medium, and easy.`;
+Make sure you generate exactly three tasks of easy priority.`;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
