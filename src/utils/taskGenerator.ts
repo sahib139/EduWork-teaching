@@ -47,10 +47,10 @@ export async function generateDailyTasks(): Promise<Task[]> {
 
     const prompt = `Generate exactly 3 daily teaching tasks for an English/General Knowledge/Math teacher who specializes in teaching children. The tasks should be realistic, educational, and help build teaching skills and content creation abilities.
 
-Context about the teacher: They have experience in English/General Knowledge/Math teaching and want to focus on creating engaging content for kids till 2nd standard. They're currently building their teaching portfolio and want to feel productive.
+Context about the teacher: They have experience in English/General Knowledge/Math teaching and want to focus on creating engaging content for kids till 2nd standard (6-7 years old in India). They're currently building their teaching portfolio and want to feel productive.
 
 Please generate exactly 3 tasks with these specific requirements:
-1. ONE easy task (priority: easy) - Basic English/General Knowledge/Math tasks (15-25 min)
+1. ONE easy task (priority: easy) - Basic English/General Knowledge/Math tasks (15-25 min) till 2nd standard (6-7 years old in India).
 
 Each task should have:
 - A clear, actionable title
