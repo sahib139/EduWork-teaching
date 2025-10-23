@@ -97,6 +97,8 @@ src/app/
 - `eduwork_stats`: Historical progress data
 - `eduwork_uploaded_content`: File upload metadata
 - `eduwork_bank_details`: Bank payout info (account holder, bank, account no., IFSC, optional UPI)
+- `eduwork_daily_earnings`: Daily earnings record with auto reset each day
+- `eduwork_monthly_earnings`: Monthly earnings record with auto reset each month
 
 ### **Data Persistence**
 - **Tasks**: Same tasks shown throughout the day

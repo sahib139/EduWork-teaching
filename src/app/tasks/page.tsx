@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { ArrowLeft, CheckCircle, Circle, Clock, Target, Trophy, Calendar, AlertCircle, Upload, FileText, Video, Image as ImageIcon, X, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { getOrGenerateDailyTasks, isApiKeyConfigured, Task } from '../../utils/taskGenerator';
+import { setTodayEarnings, getMonthlyEarnings } from '../../utils/earnings';
 
 
 export default function TasksPage() {
@@ -15,6 +16,7 @@ export default function TasksPage() {
   const [uploadProgress, setUploadProgress] = useState<{[taskId: string]: number}>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [monthlyEarnings, setMonthlyEarnings] = useState(0);
 
   const loadTasks = useCallback(async () => {
     setIsLoading(true);
@@ -166,6 +168,9 @@ export default function TasksPage() {
     }
 
     setTotalEarnings(todayEarnings);
+    // Persist daily and update monthly aggregate
+    setTodayEarnings(todayEarnings);
+    setMonthlyEarnings(getMonthlyEarnings());
   };
 
   const toggleTaskCompletion = (taskId: string) => {
@@ -227,9 +232,14 @@ export default function TasksPage() {
               })}
             </span>
           </div>
-          <div className="flex items-center space-x-2">
-            <Trophy className="w-5 h-5 text-yellow-500" />
-            <span className="font-semibold text-green-600">₹{totalEarnings}</span>
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <Trophy className="w-5 h-5 text-yellow-500" />
+              <span className="font-semibold text-green-600">₹{totalEarnings}</span>
+            </div>
+            <div className="text-xs text-gray-600">
+              Month: <span className="font-semibold text-blue-600">₹{monthlyEarnings}</span>
+            </div>
           </div>
         </div>
 

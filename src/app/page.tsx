@@ -4,12 +4,14 @@ import { useState, useEffect } from 'react';
 import { BookOpen, Settings, Star, Calendar, Trophy, Target, Key, CreditCard } from 'lucide-react';
 import Link from 'next/link';
 import { getOrGenerateDailyTasks, isApiKeyConfigured } from '../utils/taskGenerator';
+import { getMonthlyEarnings } from '../utils/earnings';
 
 // Removed unused Task interface
 
 function QuickStats() {
   const [taskCount, setTaskCount] = useState(0);
   const [todayEarnings, setTodayEarnings] = useState(0);
+  const [monthlyEarnings, setMonthlyEarnings] = useState(0);
 
   useEffect(() => {
     loadStats();
@@ -44,6 +46,7 @@ function QuickStats() {
         earnings = 0;
       }
       setTodayEarnings(earnings);
+      setMonthlyEarnings(getMonthlyEarnings());
     } catch (error) {
       console.error('Error loading stats:', error);
       setTaskCount(0);
@@ -52,7 +55,7 @@ function QuickStats() {
   };
 
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid grid-cols-3 gap-4">
       <div className="bg-white rounded-xl p-4 shadow-sm text-center">
         <div className="text-2xl font-bold text-green-600 mb-1">{taskCount}</div>
         <p className="text-sm text-gray-600">Tasks Today</p>
@@ -60,6 +63,10 @@ function QuickStats() {
       <div className="bg-white rounded-xl p-4 shadow-sm text-center">
         <div className="text-2xl font-bold text-blue-600 mb-1">₹{todayEarnings}</div>
         <p className="text-sm text-gray-600">Today&apos;s Earnings</p>
+      </div>
+      <div className="bg-white rounded-xl p-4 shadow-sm text-center">
+        <div className="text-2xl font-bold text-purple-600 mb-1">₹{monthlyEarnings}</div>
+        <p className="text-sm text-gray-600">Monthly Earnings</p>
       </div>
     </div>
   );
@@ -101,7 +108,7 @@ export default function Home() {
             className="p-2 rounded-full hover:bg-gray-100 transition-colors"
             title={isAdmin ? "Switch to User Mode" : "Switch to Admin Mode"}
           >
-            <Settings className={`w-5 h-5 ${isAdmin ? 'text-blue-600' : 'text-gray-400'}`} />
+            {/* <Settings className={`w-5 h-5 ${isAdmin ? 'text-blue-600' : 'text-gray-400'}`} /> */}
           </button>
         </div>
       </header>
