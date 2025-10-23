@@ -45,28 +45,36 @@ export async function generateDailyTasks(): Promise<Task[]> {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-    const prompt = `Generate exactly 3 daily teaching tasks for an English/General Knowledge/Math teacher who specializes in teaching children. The tasks should be realistic, educational, and help build teaching skills and content creation abilities.
+    const prompt = `STRICT TASK GENERATION SPECIFICATION (FOLLOW EXACTLY)
 
-Context about the teacher: They have experience in English/General Knowledge/Math teaching and want to focus on creating engaging content for kids till 2nd standard (6-7 years old in India). They're currently building their teaching portfolio and want to feel productive.
+Goal: Generate exactly 3 EASY tasks for a teacher preparing kids in India (KG, Grade 1, Grade 2) focusing ONLY on Writing Skills or Math Skills. Do not include any other subjects or skills. Strictly follow Indian syllabus context (typical CBSE/ICSE/State board level topics).
 
-Please generate exactly 3 tasks with these specific requirements:
-1. ONE easy task (priority: easy) - Basic English/General Knowledge/Math tasks (15-25 min) till 2nd standard (6-7 years old in India).
+Absolute Rules (must obey all):
+1) Quantity: Exactly 3 tasks.
+2) Difficulty: All 3 must have priority "easy" only. Do NOT use medium or hard.
+3) Domains allowed: ONLY these categories — "Writing Skills" or "Math Skills". No other categories.
+4) Age/Grades: KG (LKG/UKG), Grade 1, Grade 2 in India.
+5) Duration: Each task must take 15–25 minutes (estimated_time_in_minutes within this range).
+6) Content specificity: Align to foundational Indian syllabus skills. Examples allowed:
+   - Writing Skills: letter/word tracing, CVC words writing, picture–sentence writing (1–3 short sentences), capital/small letter practice, dictation of common sight words, punctuation basics (full stop), ordering words to form a simple sentence.
+   - Math Skills: counting (1–20 / 1–50 as age-appropriate), number comparison (<, >, =), number bonds within 10, shapes recognition, simple addition/subtraction within 10 or 20, skip counting by 2s/5s/10s (Grade 1/2), place value (tens/ones) for Grade 1/2.
+7) Tone: Simple, kid-friendly classroom tasks that a teacher would assign. No advanced concepts. No extra subjects.
+8) Language Simplicity: Use the easiest, plain language possible. Very short sentences. Avoid jargon. Make it effortless for the teacher to understand at a glance.
+8) Output format: JSON array ONLY (no prose, no markdown fences), with exactly 3 objects.
 
-Each task should have:
-- A clear, actionable title
-- Detailed description of what to do
-- Category (English/General Knowledge/Math Tasks)
-- Estimated time in minutes (with the ranges specified above)
-- Priority level (easy)
+For EACH task include these exact fields:
+- title: string (concise and clear, e.g., "Write 5 CVC Words from Pictures" or "Add Within 10 Using Counters")
+- description: string (step-by-step, 3–6 short bullet-like steps separated by " • ", and mention the grade e.g., "(Grade 1)" or "(KG)". At the end, append one simple "Example:" with 1–3 sample items to show how to do it.)
+- category: string (MUST be either "Writing Skills" or "Math Skills")
+- estimated_time_in_minutes: number (integer between 15 and 25)
+- priority: string (MUST be "easy")
 
-Format your response as a JSON array of exactly 3 objects with these exact properties:
-- title: string
-- description: string
-- category: string
-- estimated_time_in_minutes: number
-- priority: string
+Additional constraints:
+- Balance across KG/Grade 1/Grade 2 when possible (at least two different grade levels across the 3 tasks).
+- Use Indian English where appropriate (e.g., "maths" is acceptable but stick to simple wording).
+- No external materials or printing required; use notebook/pencil/manipulatives available in class (counters, beans, sticks).
 
-Make sure you generate exactly three tasks of easy priority.`;
+Return ONLY the JSON array as the response, nothing else.`;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
@@ -89,8 +97,20 @@ Make sure you generate exactly three tasks of easy priority.`;
     }
 
     const priorities = rawTasks.map((task: RawTaskFromAPI) => task.priority);
-    if (!priorities.includes('easy') || !priorities.includes('medium') || !priorities.includes('hard')) {
-      throw new Error('Invalid response: Missing required priority levels (easy, medium, hard)');
+    if (!priorities.every((p: string) => p === 'easy')) {
+      throw new Error('Invalid response: All tasks must have priority "easy" only');
+    }
+
+    const allowedCategories = ['Writing Skills', 'Math Skills'];
+    if (!rawTasks.every((t: RawTaskFromAPI) => allowedCategories.includes(t.category))) {
+      throw new Error('Invalid response: category must be either "Writing Skills" or "Math Skills"');
+    }
+
+    if (!rawTasks.every((t: RawTaskFromAPI) => {
+      const m: number | undefined = t.estimated_time_in_minutes ?? t.estimatedTime;
+      return typeof m === 'number' && m >= 15 && m <= 25;
+    })) {
+      throw new Error('Invalid response: estimated_time_in_minutes must be 15–25 for all tasks');
     }
 
     // Transform the API response to match our Task interface
