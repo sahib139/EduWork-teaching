@@ -1,18 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ArrowLeft, CheckCircle, Circle, Clock, Target, Trophy, Calendar, AlertCircle, Upload, FileText, Video, Image, X } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Circle, Clock, Target, Trophy, Calendar, AlertCircle, Upload, FileText, Video, Image, X, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
+import { getOrGenerateDailyTasks, isApiKeyConfigured, Task } from '../../utils/taskGenerator';
 
-interface Task {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  estimatedTime: number;
-  priority: 'high' | 'medium' | 'low';
-  completed: boolean;
-}
 
 export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -21,6 +13,8 @@ export default function TasksPage() {
   const [uploadedContent, setUploadedContent] = useState<{[taskId: string]: {type: string, name: string, size: string}[]}>({});
   const [uploading, setUploading] = useState<{[taskId: string]: boolean}>({});
   const [uploadProgress, setUploadProgress] = useState<{[taskId: string]: number}>({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadTasks();
@@ -124,16 +118,31 @@ export default function TasksPage() {
     }
   };
 
-  const loadTasks = () => {
-    const savedTasks = localStorage.getItem('eduwork_daily_tasks');
-    const tasksDate = localStorage.getItem('eduwork_tasks_date');
-    const today = new Date().toISOString().split('T')[0];
+  const loadTasks = async () => {
+    setIsLoading(true);
+    setError(null);
 
-    if (savedTasks && tasksDate === today) {
-      const parsedTasks = JSON.parse(savedTasks);
-      setTasks(parsedTasks);
-      setCompletedCount(parsedTasks.filter((task: Task) => task.completed).length);
-      calculateEarnings(parsedTasks);
+    try {
+      // Check if API key is configured
+      if (!isApiKeyConfigured()) {
+        setError('System not configured. Redirecting to setup...');
+        setTimeout(() => {
+          window.location.href = '/setup';
+        }, 2000);
+        setIsLoading(false);
+        return;
+      }
+
+      // Get or generate tasks for today
+      const dailyTasks = await getOrGenerateDailyTasks();
+      setTasks(dailyTasks);
+      setCompletedCount(dailyTasks.filter(task => task.completed).length);
+      calculateEarnings(dailyTasks);
+    } catch (err) {
+      console.error('Error loading tasks:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load tasks. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -174,9 +183,9 @@ export default function TasksPage() {
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high': return 'text-red-600 bg-red-50 border-red-200';
+      case 'hard': return 'text-red-600 bg-red-50 border-red-200';
       case 'medium': return 'text-yellow-600 bg-yellow-50 border-yellow-200';
-      case 'low': return 'text-green-600 bg-green-50 border-green-200';
+      case 'easy': return 'text-green-600 bg-green-50 border-green-200';
       default: return 'text-gray-600 bg-gray-50 border-gray-200';
     }
   };
@@ -239,7 +248,30 @@ export default function TasksPage() {
 
       {/* Main Content */}
       <main className="px-4 py-6">
-        {tasks.length === 0 ? (
+        {isLoading ? (
+          /* Loading State */
+          <div className="text-center py-12">
+            <RefreshCw className="w-16 h-16 text-blue-400 mx-auto mb-4 animate-spin" />
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Generating Today's Tasks</h2>
+            <p className="text-gray-600">
+              Creating personalized teaching tasks for you...
+            </p>
+          </div>
+        ) : error ? (
+          /* Error State */
+          <div className="text-center py-12">
+            <AlertCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Unable to Load Tasks</h2>
+            <p className="text-gray-600 mb-6">{error}</p>
+            <button
+              onClick={loadTasks}
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Try Again
+            </button>
+          </div>
+        ) : tasks.length === 0 ? (
           /* No Tasks State */
           <div className="text-center py-12">
             <AlertCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
@@ -321,7 +353,7 @@ export default function TasksPage() {
 
                         {task.completed && (
                           <span className="text-xs font-medium text-green-600">
-                            +₹{task.priority === 'high' ? '50' : task.priority === 'medium' ? '30' : '20'}
+                            +₹{task.priority === 'hard' ? '50' : task.priority === 'medium' ? '30' : '20'}
                           </span>
                         )}
                       </div>

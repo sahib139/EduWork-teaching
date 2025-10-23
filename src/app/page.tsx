@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { BookOpen, Settings, Star, Calendar, Trophy, Target } from 'lucide-react';
+import { BookOpen, Settings, Star, Calendar, Trophy, Target, Key } from 'lucide-react';
 import Link from 'next/link';
+import { getOrGenerateDailyTasks, isApiKeyConfigured } from '../utils/taskGenerator';
 
 interface Task {
   id: string;
@@ -22,13 +23,17 @@ function QuickStats() {
     loadStats();
   }, []);
 
-  const loadStats = () => {
-    const savedTasks = localStorage.getItem('eduwork_daily_tasks');
-    const tasksDate = localStorage.getItem('eduwork_tasks_date');
-    const today = new Date().toISOString().split('T')[0];
+  const loadStats = async () => {
+    try {
+      // Check if API key is configured - redirect to setup if not
+      if (!isApiKeyConfigured()) {
+        setTaskCount(0);
+        setTodayEarnings(0);
+        return;
+      }
 
-    if (savedTasks && tasksDate === today) {
-      const tasks: Task[] = JSON.parse(savedTasks);
+      // Get or generate tasks for today (this will trigger automatic generation if needed)
+      const tasks = await getOrGenerateDailyTasks();
       setTaskCount(tasks.length);
 
       // Calculate today's earnings based on completion status
@@ -47,7 +52,8 @@ function QuickStats() {
         earnings = 0;
       }
       setTodayEarnings(earnings);
-    } else {
+    } catch (error) {
+      console.error('Error loading stats:', error);
       setTaskCount(0);
       setTodayEarnings(0);
     }
@@ -120,6 +126,24 @@ export default function Home() {
               </div>
 
               <div className="grid grid-cols-1 gap-4">
+                {!isApiKeyConfigured() && (
+                  <Link
+                    href="/setup"
+                    className="flex items-center justify-between p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors border border-orange-200"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="bg-orange-100 p-1 rounded">
+                        <Key className="w-4 h-4 text-orange-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900">Setup Required</p>
+                        <p className="text-sm text-gray-600">Configure Gemini API key</p>
+                      </div>
+                    </div>
+                    <div className="text-orange-600">→</div>
+                  </Link>
+                )}
+
                 <Link
                   href="/admin/tasks"
                   className="flex items-center justify-between p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
@@ -127,8 +151,8 @@ export default function Home() {
                   <div className="flex items-center space-x-3">
                     <Target className="w-5 h-5 text-blue-600" />
                     <div>
-                      <p className="font-medium text-gray-900">Generate Daily Tasks</p>
-                      <p className="text-sm text-gray-600">Create tasks using AI</p>
+                      <p className="font-medium text-gray-900">Monitor Progress</p>
+                      <p className="text-sm text-gray-600">View task completion & earnings</p>
                     </div>
                   </div>
                   <div className="text-blue-600">→</div>
