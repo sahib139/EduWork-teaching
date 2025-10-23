@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { ArrowLeft, CheckCircle, Circle, Clock, Target, Trophy, Calendar, AlertCircle, Upload, FileText, Video, Image, X, RefreshCw } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { ArrowLeft, CheckCircle, Circle, Clock, Target, Trophy, Calendar, AlertCircle, Upload, FileText, Video, Image as ImageIcon, X, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { getOrGenerateDailyTasks, isApiKeyConfigured, Task } from '../../utils/taskGenerator';
 
@@ -16,10 +16,38 @@ export default function TasksPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const loadTasks = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // Check if API key is configured
+      if (!isApiKeyConfigured()) {
+        setError('System not configured. Redirecting to setup...');
+        setTimeout(() => {
+          window.location.href = '/setup';
+        }, 2000);
+        setIsLoading(false);
+        return;
+      }
+
+      // Get or generate tasks for today
+      const dailyTasks = await getOrGenerateDailyTasks();
+      setTasks(dailyTasks);
+      setCompletedCount(dailyTasks.filter(task => task.completed).length);
+      calculateEarnings(dailyTasks);
+    } catch (err) {
+      console.error('Error loading tasks:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load tasks. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     loadTasks();
     loadUploadedContent();
-  }, []);
+  }, [loadTasks]);
 
   const loadUploadedContent = () => {
     const saved = localStorage.getItem('eduwork_uploaded_content');
@@ -118,33 +146,7 @@ export default function TasksPage() {
     }
   };
 
-  const loadTasks = async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      // Check if API key is configured
-      if (!isApiKeyConfigured()) {
-        setError('System not configured. Redirecting to setup...');
-        setTimeout(() => {
-          window.location.href = '/setup';
-        }, 2000);
-        setIsLoading(false);
-        return;
-      }
-
-      // Get or generate tasks for today
-      const dailyTasks = await getOrGenerateDailyTasks();
-      setTasks(dailyTasks);
-      setCompletedCount(dailyTasks.filter(task => task.completed).length);
-      calculateEarnings(dailyTasks);
-    } catch (err) {
-      console.error('Error loading tasks:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load tasks. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  
 
   const calculateEarnings = (taskList: Task[]) => {
     const completedTasks = taskList.filter(task => task.completed).length;
@@ -252,7 +254,7 @@ export default function TasksPage() {
           /* Loading State */
           <div className="text-center py-12">
             <RefreshCw className="w-16 h-16 text-blue-400 mx-auto mb-4 animate-spin" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Generating Today's Tasks</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Generating Today&apos;s Tasks</h2>
             <p className="text-gray-600">
               Creating personalized teaching tasks for you...
             </p>
@@ -392,7 +394,7 @@ export default function TasksPage() {
                             disabled={uploading[task.id]}
                             className="flex items-center space-x-1 text-xs bg-green-50 text-green-700 px-2 py-1 rounded hover:bg-green-100 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            <Image className="w-3 h-3" />
+                            <ImageIcon className="w-3 h-3" />
                             <span>Add Image</span>
                           </button>
                           <button
@@ -420,7 +422,7 @@ export default function TasksPage() {
                             {uploadedContent[task.id].map((content, idx) => (
                               <div key={idx} className="flex items-center space-x-2 text-xs bg-gray-50 px-2 py-1 rounded">
                                 {content.type === 'text' && <FileText className="w-3 h-3 text-blue-500" aria-hidden="true" />}
-                                {content.type === 'image' && <Image className="w-3 h-3 text-green-500" aria-hidden="true" />}
+                                {content.type === 'image' && <ImageIcon className="w-3 h-3 text-green-500" aria-hidden="true" />}
                                 {content.type === 'video' && <Video className="w-3 h-3 text-purple-500" aria-hidden="true" />}
                                 {content.type === 'document' && <Upload className="w-3 h-3 text-orange-500" aria-hidden="true" />}
                                 <span className="truncate flex-1">{content.name}</span>

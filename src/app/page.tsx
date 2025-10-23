@@ -1,19 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { BookOpen, Settings, Star, Calendar, Trophy, Target, Key } from 'lucide-react';
+import { BookOpen, Settings, Star, Calendar, Trophy, Target, Key, CreditCard } from 'lucide-react';
 import Link from 'next/link';
 import { getOrGenerateDailyTasks, isApiKeyConfigured } from '../utils/taskGenerator';
 
-interface Task {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  estimatedTime: number;
-  priority: 'high' | 'medium' | 'low';
-  completed: boolean;
-}
+// Removed unused Task interface
 
 function QuickStats() {
   const [taskCount, setTaskCount] = useState(0);
@@ -171,6 +163,20 @@ export default function Home() {
                   </div>
                   <div className="text-green-600">→</div>
                 </Link>
+
+                <Link
+                  href="/bank"
+                  className="flex items-center justify-between p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
+                >
+                  <div className="flex items-center space-x-3">
+                    <CreditCard className="w-5 h-5 text-purple-600" />
+                    <div>
+                      <p className="font-medium text-gray-900">Bank Details</p>
+                      <p className="text-sm text-gray-600">Manage payout information</p>
+                    </div>
+                  </div>
+                  <div className="text-purple-600">→</div>
+                </Link>
               </div>
             </div>
           </div>
@@ -210,6 +216,21 @@ export default function Home() {
               >
                 <Target className="w-5 h-5" />
                 <span>View My Tasks</span>
+              </Link>
+            </div>
+
+            {/* Bank Details */}
+            <div className="bg-white rounded-xl p-6 shadow-sm">
+              <div className="flex items-center space-x-3 mb-4">
+                <CreditCard className="w-5 h-5 text-purple-600" />
+                <h3 className="font-semibold text-gray-900">Bank Details</h3>
+              </div>
+              <p className="text-gray-600 mb-4">Add or update payout account information.</p>
+              <Link
+                href="/bank"
+                className="w-full bg-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-purple-700 transition-colors flex items-center justify-center"
+              >
+                Manage Bank Details
               </Link>
             </div>
 

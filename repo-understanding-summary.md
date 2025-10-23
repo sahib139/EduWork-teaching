@@ -44,6 +44,8 @@
 src/app/
 ├── layout.tsx          # Root layout with theme
 ├── page.tsx            # Main dashboard with mode toggle
+├── bank/               # Bank details (payout info)
+│   └── page.tsx
 ├── tasks/              # User task completion interface
 │   └── page.tsx
 └── admin/              # Admin panel
@@ -94,6 +96,7 @@ src/app/
 - `eduwork_tasks_date`: Date for task validity
 - `eduwork_stats`: Historical progress data
 - `eduwork_uploaded_content`: File upload metadata
+- `eduwork_bank_details`: Bank payout info (account holder, bank, account no., IFSC, optional UPI)
 
 ### **Data Persistence**
 - **Tasks**: Same tasks shown throughout the day

@@ -173,7 +173,7 @@ export default function SetupPage() {
             <h3 className="font-medium text-blue-900 mb-2">How it works:</h3>
             <ol className="text-sm text-blue-800 space-y-1">
               <li>1. Get a free Gemini API key from Google AI Studio</li>
-              <li>2. Enter your API key above and click "Configure & Test"</li>
+              <li>2. Enter your API key above and click &quot;Configure & Test&quot;</li>
               <li>3. The system will test the key and generate sample tasks</li>
               <li>4. Tasks will be automatically created each day when someone visits</li>
             </ol>

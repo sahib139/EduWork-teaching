@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ArrowLeft, Eye, RefreshCw, CheckCircle, AlertCircle, Calendar, Trophy, Target, Clock } from 'lucide-react';
 import Link from 'next/link';
-import { getOrGenerateDailyTasks, isApiKeyConfigured } from '../../utils/taskGenerator';
+import { getOrGenerateDailyTasks, isApiKeyConfigured } from '../../../utils/taskGenerator';
 
 interface Task {
   id: string;
@@ -22,11 +22,7 @@ export default function AdminTasksPage() {
   const [completedCount, setCompletedCount] = useState(0);
   const [totalEarnings, setTotalEarnings] = useState(0);
 
-  useEffect(() => {
-    loadTasks();
-  }, []);
-
-  const loadTasks = async () => {
+  const loadTasks = useCallback(async () => {
     setIsLoading(true);
     setError('');
 
@@ -47,7 +43,11 @@ export default function AdminTasksPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadTasks();
+  }, [loadTasks]);
 
   const calculateEarnings = (taskList: Task[]) => {
     const completedTasks = taskList.filter(task => task.completed).length;
@@ -131,7 +131,7 @@ export default function AdminTasksPage() {
           <div className="text-center py-12">
             <RefreshCw className="w-16 h-16 text-blue-400 mx-auto mb-4 animate-spin" />
             <h2 className="text-xl font-semibold text-gray-900 mb-2">Loading Tasks</h2>
-            <p className="text-gray-600">Checking today's progress...</p>
+            <p className="text-gray-600">Checking today&apos;s progress...</p>
           </div>
         ) : error ? (
           <div className="text-center py-12">

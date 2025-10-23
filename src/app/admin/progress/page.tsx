@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ArrowLeft, TrendingUp, Calendar } from 'lucide-react';
 import Link from 'next/link';
 
@@ -27,11 +27,7 @@ export default function AdminProgressPage() {
   const [stats, setStats] = useState<DailyStats[]>([]);
   const [totalEarnings, setTotalEarnings] = useState(0);
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = () => {
+  const loadData = useCallback(() => {
     // Load current day's tasks
     const savedTasks = localStorage.getItem('eduwork_daily_tasks');
     if (savedTasks) {
@@ -49,7 +45,11 @@ export default function AdminProgressPage() {
     }
 
     calculateTotalEarnings();
-  };
+  }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const calculateTotalEarnings = () => {
     const savedStats = localStorage.getItem('eduwork_stats');
