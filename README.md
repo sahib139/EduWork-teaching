@@ -157,4 +157,4 @@ Potential improvements you could add later:
 
 **Remember**: This platform is a supportive tool to help your people regain confidence. Be patient, encouraging, and celebrate small wins. The goal is steady progress toward her dream of becoming a teacher.
 
-With love and support for your people! 🌟📚
+With love! 🌟📚
