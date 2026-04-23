@@ -20,7 +20,7 @@ This platform serves as a gentle way to help your people:
 - **Professional Interface**: Clean, encouraging design that feels like real work
 
 ### For You (Admin Mode)
-- **AI Task Generation**: Use Google Gemini API to create personalized tasks
+- **AI Task Generation**: Use OpenRouter to create personalized tasks
 - **Progress Monitoring**: Track completion rates and earnings
 - **Manual Earnings**: Add bonus earnings for special achievements
 - **Data Management**: Full control over tasks and progress data
@@ -29,7 +29,7 @@ This platform serves as a gentle way to help your people:
 
 ### Prerequisites
 - Node.js 18+ installed
-- Free Google Gemini API key (from [Google AI Studio](https://aistudio.google.com/app/apikey))
+- OpenRouter API key (from [OpenRouter](https://openrouter.ai/keys))
 
 ### Local Development
 
@@ -46,7 +46,7 @@ This platform serves as a gentle way to help your people:
 3. **Open in Browser**
    - Visit [http://localhost:3000](http://localhost:3000)
    - Toggle to Admin mode using the settings icon
-   - Enter your Gemini API key
+   - Enter your OpenRouter API key
    - Generate daily tasks for your people
 
 ### Deployment to Vercel (Free)
@@ -76,7 +76,7 @@ The platform is optimized for mobile browsers since your people will primarily a
 ## 🔧 How It Works
 
 ### Task Generation
-1. **AI-Powered**: Uses Google Gemini to create realistic teaching tasks
+1. **AI-Powered**: Uses OpenRouter to create realistic teaching tasks
 2. **Personalized**: Tasks focus on English teaching for children
 3. **Progressive**: Tasks build skills and confidence over time
 
@@ -135,7 +135,7 @@ The platform is optimized for mobile browsers since your people will primarily a
 ## 🆘 Troubleshooting
 
 ### Common Issues
-1. **API Key Issues**: Ensure Gemini API key is valid and has quota
+1. **API Key Issues**: Ensure OpenRouter API key is valid and has quota
 2. **Tasks Not Loading**: Check browser localStorage is enabled
 3. **Mobile Issues**: Ensure viewport meta tag is set (it is!)
 

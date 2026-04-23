@@ -3,19 +3,23 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Key, CheckCircle, AlertCircle, Wand2 } from 'lucide-react';
 import Link from 'next/link';
-import { setApiKey, isApiKeyConfigured, getOrGenerateDailyTasks } from '../../utils/taskGenerator';
+import { setApiKey, isApiKeyConfigured, getOrGenerateDailyTasks, setModel, isModelConfigured } from '../../utils/taskGenerator';
 
 export default function SetupPage() {
   const [apiKey, setApiKeyInput] = useState('');
+  const [model, setModelInput] = useState('minimax/minimax-m2.5:free');
   const [isTesting, setIsTesting] = useState(false);
   const [isConfigured, setIsConfigured] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
   useEffect(() => {
-    // Check if already configured
     if (isApiKeyConfigured()) {
       setIsConfigured(true);
+    }
+    const savedModel = localStorage.getItem('openrouter_model');
+    if (savedModel) {
+      setModelInput(savedModel);
     }
   }, []);
 
@@ -30,16 +34,14 @@ export default function SetupPage() {
     setSuccess('');
 
     try {
-      // Save the API key
       setApiKey(apiKey.trim());
+      setModel(model.trim());
 
-      // Test it by trying to generate tasks
       await getOrGenerateDailyTasks();
 
-      setSuccess('✅ API key configured successfully! Tasks will be automatically generated.');
+      setSuccess('✅ API key and model configured successfully! Tasks will be automatically generated.');
       setIsConfigured(true);
 
-      // Redirect to home after a short delay
       setTimeout(() => {
         window.location.href = '/';
       }, 2000);
@@ -47,8 +49,7 @@ export default function SetupPage() {
     } catch (err) {
       console.error('API key test failed:', err);
       setError(err instanceof Error ? err.message : 'Invalid API key or network error. Please check your key and try again.');
-      // Remove the invalid key
-      localStorage.removeItem('gemini_api_key');
+      localStorage.removeItem('openrouter_api_key');
     } finally {
       setIsTesting(false);
     }
@@ -101,32 +102,48 @@ export default function SetupPage() {
               </div>
               <h2 className="text-xl font-semibold text-gray-900 mb-2">Configure AI Tasks</h2>
               <p className="text-gray-600 text-sm">
-                Set up your Gemini API key to enable automatic task generation
+                Set up your OpenRouter API key to enable automatic task generation
               </p>
             </div>
 
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Gemini API Key
+                  OpenRouter API Key
                 </label>
                 <input
                   type="password"
                   value={apiKey}
                   onChange={(e) => setApiKeyInput(e.target.value)}
-                  placeholder="Enter your Gemini API key"
+                  placeholder="Enter your OpenRouter API key"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
                 <p className="text-sm text-gray-500 mt-1">
                   Get your free API key from{' '}
                   <a
-                    href="https://aistudio.google.com/app/apikey"
+                    href="https://openrouter.ai/keys"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:underline"
                   >
-                    Google AI Studio
+                    OpenRouter
                   </a>
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Model
+                </label>
+                <input
+                  type="text"
+                  value={model}
+                  onChange={(e) => setModelInput(e.target.value)}
+                  placeholder="e.g., minimax/minimax-m2.5:free"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <p className="text-sm text-gray-500 mt-1">
+                  Default: minimax/minimax-m2.5:free
                 </p>
               </div>
 
@@ -172,10 +189,11 @@ export default function SetupPage() {
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
             <h3 className="font-medium text-blue-900 mb-2">How it works:</h3>
             <ol className="text-sm text-blue-800 space-y-1">
-              <li>1. Get a free Gemini API key from Google AI Studio</li>
-              <li>2. Enter your API key above and click &quot;Configure & Test&quot;</li>
-              <li>3. The system will test the key and generate sample tasks</li>
-              <li>4. Tasks will be automatically created each day when someone visits</li>
+              <li>1. Get an OpenRouter API key from OpenRouter</li>
+              <li>2. Optionally customize the model (default: minimax/minimax-m2.5:free)</li>
+              <li>3. Enter your API key above and click &quot;Configure & Test&quot;</li>
+              <li>4. The system will test the key and generate sample tasks</li>
+              <li>5. Tasks will be automatically created each day when someone visits</li>
             </ol>
           </div>
 
@@ -189,4 +207,3 @@ export default function SetupPage() {
     </div>
   );
 }
-

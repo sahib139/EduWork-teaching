@@ -28,7 +28,7 @@ export default function AdminTasksPage() {
 
     try {
       if (!isApiKeyConfigured()) {
-        setError('System not configured. Please set up the Gemini API key first.');
+        setError('System not configured. Please set up the OpenRouter API key first.');
         setIsLoading(false);
         return;
       }

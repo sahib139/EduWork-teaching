@@ -136,7 +136,7 @@ export default function Home() {
                       </div>
                       <div>
                         <p className="font-medium text-gray-900">Setup Required</p>
-                        <p className="text-sm text-gray-600">Configure Gemini API key</p>
+                        <p className="text-sm text-gray-600">Configure OpenRouter API key</p>
                       </div>
                     </div>
                     <div className="text-orange-600">→</div>
